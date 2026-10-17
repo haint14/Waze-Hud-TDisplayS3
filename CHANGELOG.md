@@ -14,6 +14,7 @@ Firmware phát hành dạng **Factory All-in-One** (đã gồm bootloader, bản
 - Vùng cấm vượt đang đi trong đó và cảnh báo không có khoảng cách vẫn luôn hiển thị.
 - Giao thức, schema cài đặt (rev 8) và thứ tự ưu tiên biển báo không đổi.
 - Đã xem thử bằng `tools/host_preview` (kiểm tra vẽ lại từng vùng: 0 điểm lệch) và đã chạy trên board T-Display-S3 thật.
+- Firmware báo số phiên bản nội bộ `2.8.16-tds3`.
 
 ## [r1] - 2026-10-15
 
