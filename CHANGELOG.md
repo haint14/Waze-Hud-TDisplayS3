@@ -7,6 +7,14 @@ Firmware phát hành dạng **Factory All-in-One** (đã gồm bootloader, bản
 
 ---
 
+## [r2] - 2026-10-17
+
+- **Cột cảnh báo gọn hơn:** chỉ còn 1 biển lớn và tối đa 1 biển phụ (icon bên trái, khoảng cách bên phải, ngăn cách bằng một đường kẻ mảnh), thay cho 1 biển lớn và 2 biển nhỏ xếp ngang. Khoảng cách không còn bị tràn mép phải.
+- **Lọc theo khoảng cách:** biển chính chỉ hiện khi cách dưới 800 m, biển phụ khi cách dưới 1,5 km. Biển xa hơn bị ẩn; không còn biển nào trong tầm thì cột quay về thẻ so sánh tốc độ với giới hạn.
+- Vùng cấm vượt đang đi trong đó và cảnh báo không có khoảng cách vẫn luôn hiển thị.
+- Giao thức, schema cài đặt (rev 8) và thứ tự ưu tiên biển báo không đổi.
+- Đã xem thử bằng `tools/host_preview` (kiểm tra vẽ lại từng vùng: 0 điểm lệch) và đã chạy trên board T-Display-S3 thật.
+
 ## [r1] - 2026-10-15
 
 Bản đầu tiên, dựng lại từ bản ESP32-S3 ES3C28P (nền B16) cho màn hình T-Display-S3 320×170.
