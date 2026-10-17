@@ -478,6 +478,16 @@ inline bool compareAlertPriority(const AlertState &a, const AlertState &b) {
     return a.distanceM < b.distanceM;
 }
 
+// Alert column: the primary alert is shown only within 800 m, the follow-up within 1.5 km.
+constexpr int kPrimaryAlertMaxM = 800;
+constexpr int kSecondaryAlertMaxM = 1500;
+
+bool alertWithinRange(const AlertState &alert, int maxDistanceM) {
+    // An active no-passing zone reports the length left inside it, not a distance ahead.
+    return alert.kind == AlertKind::NoPassing || alert.distanceM < 0 || alert.distanceM <= maxDistanceM;
+}
+
+// Returns the alerts to draw: [0] primary, [1] optional follow-up (at most 2).
 uint8_t collectSortedAlerts(const HudState &state, AlertState *outAlerts, uint8_t maxCount) {
     uint8_t count = 0;
     if (state.noPassingZone && count < maxCount) {
@@ -507,8 +517,20 @@ uint8_t collectSortedAlerts(const HudState &state, AlertState *outAlerts, uint8_
             outAlerts[count++] = up;
         }
     }
+    // Alerts far beyond the follow-up range are not actionable yet.
+    uint8_t kept = 0;
+    for (uint8_t i = 0; i < count; ++i)
+        if (alertWithinRange(outAlerts[i], kSecondaryAlertMaxM)) outAlerts[kept++] = outAlerts[i];
+    count = kept;
     std::sort(outAlerts, outAlerts + count, compareAlertPriority);
-    return count;
+
+    // The primary alert is the highest-priority one that is close enough; it is moved to the front
+    // and only one follow-up alert (the next by priority) is kept. No close alert: column is idle.
+    uint8_t primary = 0;
+    while (primary < count && !alertWithinRange(outAlerts[primary], kPrimaryAlertMaxM)) ++primary;
+    if (primary == count) return 0;
+    std::rotate(outAlerts, outAlerts + primary, outAlerts + primary + 1);
+    return std::min<uint8_t>(count, 2);
 }
 
 // Bottom of the digit glyphs inside a font's line box, i.e. where the text baseline sits.
@@ -1262,10 +1284,9 @@ void HudRenderer::renderAlerts(Canvas &canvas, const HudState &state, const Devi
         return;
     }
 
-    // Highest-priority alert large; up to two further alerts as small icons underneath.
+    // Highest-priority alert large; one follow-up alert as a single icon + distance row below.
     const AlertState &primary = allAlerts[0];
-    const uint8_t secondaryCount = std::min<uint8_t>(2, alertCount - 1);
-    const bool hasSecondary = secondaryCount > 0;
+    const bool hasSecondary = alertCount > 1;
     const int iconRadius = hasSecondary ? 16 : 20;
     const int iconY = hasSecondary ? 42 : 48;
     const int textY = hasSecondary ? 64 : 74;
@@ -1285,17 +1306,22 @@ void HudRenderer::renderAlerts(Canvas &canvas, const HudState &state, const Devi
                         trafficSeverityColor(primary.trafficSeverity), 93, true);
     }
 
-    // The traffic-jam label needs the room below the primary distance.
-    const int secondaryIconY = trafficJam ? 103 : 94;
-    const int secondaryTextY = trafficJam ? 119 : 110;
-    for (uint8_t index = 0; index < secondaryCount; ++index) {
-        const AlertState &upcoming = allAlerts[1 + index];
-        const int centerX = secondaryCount == 1 ? 47 : (index == 0 ? 22 : 72);
-        drawAlertIcon(canvas, centerX, secondaryIconY, 13, upcoming, false);
-        char upcomingDistance[12]; formatDistance(upcoming.distanceM, upcomingDistance, sizeof(upcomingDistance));
-        canvas.fontText(centerX - 23, secondaryTextY, upcomingDistance, assets::kTextSmall,
-                        alertDistanceColor(upcoming.distanceM, colors::White), 46, true);
-    }
+    if (!hasSecondary) return;
+    // Follow-up row: icon on the left, distance on the right, under a thin divider. The divider
+    // sits below the traffic-jam label of the primary alert.
+    constexpr int kDividerY = 96;
+    constexpr int kRowIconX = 22;
+    constexpr int kRowIconY = 114;
+    constexpr int kRowTextX = 40;
+    constexpr int kRowTextWidth = 53;
+    canvas.fillRect(8, kDividerY, canvas.width() - 16, 1, colors::Muted);
+    const AlertState &upcoming = allAlerts[1];
+    drawAlertIcon(canvas, kRowIconX, kRowIconY, 13, upcoming, false);
+    char upcomingDistance[12]; formatDistance(upcoming.distanceM, upcomingDistance, sizeof(upcomingDistance));
+    const auto &rowFont = canvas.fontTextWidth(upcomingDistance, assets::kTextMedium) <= kRowTextWidth
+        ? assets::kTextMedium : assets::kTextSmall;
+    canvas.fontText(kRowTextX, kRowIconY - rowFont.lineHeight / 2, upcomingDistance, rowFont,
+                    alertDistanceColor(upcoming.distanceM, colors::White), kRowTextWidth, false);
 }
 
 void HudRenderer::renderStreet(Canvas &canvas, const HudState &state, const DeviceSettings &settings) {
