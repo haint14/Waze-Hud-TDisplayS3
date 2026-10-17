@@ -1278,12 +1278,7 @@ void HudRenderer::renderAlerts(Canvas &canvas, const HudState &state, const Devi
     const bool trafficJam = primary.kind == AlertKind::TrafficJam;
     if (trafficJam) {
         char trafficDetail[48];
-        if (primary.trafficDelayMinutes >= 0)
-            std::snprintf(trafficDetail, sizeof(trafficDetail), "%.20s +%d PH",
-                          trafficSeverityLabel(primary.trafficSeverity),
-                          primary.trafficDelayMinutes);
-        else
-            std::snprintf(trafficDetail, sizeof(trafficDetail), "%.20s",
+        std::snprintf(trafficDetail, sizeof(trafficDetail), "%.20s",
                           trafficSeverityLabel(primary.trafficSeverity));
         const int labelY = hasSecondary ? 77 : 96;
         canvas.fontText(1, labelY, trafficDetail, assets::kTextSmall,
