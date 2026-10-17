@@ -1175,12 +1175,6 @@ void HudRenderer::renderMainCluster(Canvas &canvas, const HudState &state,
         innerRadius = limitOnly ? 42 : 40;
     }
 
-    // Three-digit speeds need a wider badge to stay inside the frame.
-    const int badgeW = state.speedKmh >= 100 ? 44 : 38;
-    constexpr int badgeH = 28;
-    const int badgeX = 225 - badgeW - 2;
-    constexpr int badgeY = 130 - badgeH - 2;
-
     // Night mode follows the theme setting, or the clock when the theme is automatic.
     bool isNight = false;
     if (settings.theme == UiTheme::Night) {
@@ -1214,18 +1208,27 @@ void HudRenderer::renderMainCluster(Canvas &canvas, const HudState &state,
     }
 
     if (!limitOnly) {
-        canvas.fillRect(badgeX, badgeY, badgeW, badgeH, colors::Panel);
-        drawCard(canvas, badgeX, badgeY, badgeW, badgeH, colors::Muted);
-
         char speed[16];
         std::snprintf(speed, sizeof(speed), "%d", std::clamp(state.speedKmh, 0, 999));
         const uint16_t speedColor = firmwareOverspeed(state, settings)
             ? (renderedOverspeedPhase_ ? colors::Red : colors::White)
             : foreground(settings);
 
-        const auto &speedFont = (state.speedKmh >= 100) ? assets::kNumberSmall : assets::kNumberMedium;
-        canvas.fontText(badgeX, badgeY + (badgeH - speedFont.lineHeight) / 2,
-                        speed, speedFont, speedColor, badgeW, true);
+        // The badge is sized to the number: the 36 px speed-limit digits drawn at 85% (about 31 px).
+        const auto &speedFont = assets::kNumberSpeedLimit3;
+        constexpr float kBadgeFontScale = 0.85F;
+        constexpr int kBadgePadX = 7;
+        constexpr int kBadgePadY = 3;
+        const int numberWidth = static_cast<int>(std::lround(canvas.fontTextWidth(speed, speedFont) * kBadgeFontScale));
+        const int numberHeight = static_cast<int>(std::lround(speedFont.lineHeight * kBadgeFontScale));
+        const int badgeW = std::max(44, numberWidth + 2 * kBadgePadX);
+        const int badgeH = numberHeight + 2 * kBadgePadY;
+        const int badgeX = 225 - badgeW - 2;
+        const int badgeY = 130 - badgeH - 2;
+        canvas.fillRect(badgeX, badgeY, badgeW, badgeH, colors::Panel);
+        drawCard(canvas, badgeX, badgeY, badgeW, badgeH, colors::Muted);
+        canvas.fontTextScaled(badgeX, badgeY + kBadgePadY, speed, speedFont, speedColor, kBadgeFontScale,
+                              badgeW, true);
     }
 
     // 3. Next-street banner over the top of the sign. With lanes it starts right of the lane
