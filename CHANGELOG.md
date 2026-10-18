@@ -7,6 +7,12 @@ Firmware phát hành dạng **Factory All-in-One** (đã gồm bootloader, bản
 
 ---
 
+## [r3] - 2026-10-18
+
+- **Ngày khi chạy tự do:** `dd/mm` cỡ lớn màu vàng, năm xuống dòng dưới màu xanh lá, căn giữa cột trái (trước đây một dòng `dd/mm/yyyy` ép chữ và bị lẹm mép).
+- Giao thức, schema cài đặt (rev 8) và các phần khác không đổi.
+- Firmware báo số phiên bản nội bộ `2.8.16-tds3`.
+
 ## [r2] - 2026-10-17
 
 - **Cột cảnh báo gọn hơn:** chỉ còn 1 biển lớn và tối đa 1 biển phụ (icon bên trái, khoảng cách bên phải, ngăn cách bằng một đường kẻ mảnh), thay cho 1 biển lớn và 2 biển nhỏ xếp ngang. Khoảng cách không còn bị tràn mép phải.
