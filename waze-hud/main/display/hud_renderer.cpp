@@ -1137,17 +1137,20 @@ void HudRenderer::renderMainCluster(Canvas &canvas, const HudState &state,
             const int year = std::clamp(tmVal.tm_year + 1900, 2000, 2099);
             const int month = std::clamp(tmVal.tm_mon + 1, 1, 12);
             const int mday = std::clamp(tmVal.tm_mday, 1, 31);
-            char dateStr[32];
-            std::snprintf(dateStr, sizeof(dateStr), "%02d/%02d/%04d", mday, month, year);
+            char dayMonthStr[8];
+            char yearStr[8];
+            std::snprintf(dayMonthStr, sizeof(dayMonthStr), "%02d/%02d", mday, month);
+            std::snprintf(yearStr, sizeof(yearStr), "%04d", year);
 
             canvas.fontText(0, 12, dayStr, assets::kTextSmall, colors::Cyan, 84, true);
             canvas.fontText(0, 36, timeStr, assets::kTextLarge, colors::White, 84, true);
-            canvas.line(18, 74, 66, 74, colors::Muted, 1);
-            // Full date in metallic gold: bright face over a darker 1 px shadow. The medium
-            // font is 100 px wide; with 1 px tighter spacing it is 90 px, which still clears
-            // the speed sign (its left edge is x >= 99 at this height).
-            drawTightText(canvas, 1, 89, dateStr, assets::kTextMedium, colors::GoldShadow);
-            drawTightText(canvas, 0, 88, dateStr, assets::kTextMedium, colors::Gold);
+            canvas.line(18, 70, 66, 70, colors::Muted, 1);
+            // Date on two centred lines: dd/mm in metallic gold, the year in green, each a bright face over
+            // a darker 1 px shadow. Two lines fit the 84 px column without cramping or clipping.
+            canvas.fontText(1, 75, dayMonthStr, assets::kTextLarge, colors::GoldShadow, 84, true);
+            canvas.fontText(0, 74, dayMonthStr, assets::kTextLarge, colors::Gold, 84, true);
+            canvas.fontText(1, 103, yearStr, assets::kTextMedium, colors::GreenShadow, 84, true);
+            canvas.fontText(0, 102, yearStr, assets::kTextMedium, colors::Green, 84, true);
         } else {
             canvas.fontText(4, 16, "CHẠY", assets::kTextSmall, colors::Muted, 77, true);
             canvas.fontText(4, 34, "TỰ DO", assets::kTextMedium, colors::Green, 77, true);
