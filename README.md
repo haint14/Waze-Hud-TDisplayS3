@@ -28,9 +28,9 @@ Công cụ biên dịch đúng `hud_renderer.cpp`, `bitmap_font.cpp` và `genera
 │ MainCluster  225×140         │ Alerts 95×140 │
 │  trái: lane mini, mũi tên rẽ,│  ngày|giờ     │
 │        khoảng cách (hoặc     │  biển cảnh báo│
-│        đồng hồ khi chạy tự do)│  + 2 biển phụ │
+│       đồng hồ khi chạy tự do)│  + 2 biển phụ │
 │  phải: biển giới hạn tốc độ  │  (rảnh: so    │
-│        + tốc độ xe           │  sánh giới hạn)│
+│       + tốc độ xe            │ sánh giới hạn)│
 ├──────────────────────────────┴───────────────┤
 │ Street 320×30: tên đường (chạy chữ)  | ETA   │
 └──────────────────────────────────────────────┘
